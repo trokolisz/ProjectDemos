@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+    <script src="{% static "frontend/main.js" %}"></script>
+      
+      <div class="col-8", id= "topic_div">
+        
+        <div id="nav-tabContent" style="border: solid;">
+          
+          <div class="card-body" style="border: solid;border-width:0.1cap; margin: 0.4cap; padding: 0.5cap;     width: auto;">
+            <h5 class="card-title">Permission Name 1</h5>
+            
+            <progress id="progress_2" value="0" max="100" style="left: 10px; margin-right: 20px;"></progress>
+            <small id="text_2" class="right">3 days ago</small>
+            <a onclick="open_topic()" class="btn btn-outline-primary">Open</a>
+          </div>
+
+
+          
+
+        </div>
+      </div>
+      </div>
+
+
+      <script>
+        get_user_permissions();
+        function get_user_permissions(){
+
+          fetch("/permissions/api/?format=json&user_id=1").
+          then(response => response.json())
+          .then(data => {
+            console.log(data)
+            let user_permission_HTML = '';
+            let i = 0;
+            data.forEach(permission => {
+              if(permission.days_left < 0){
+                permission.days_left = 0;
+              }
+              
+              user_permission_HTML += `
+
+                <div class="card-body" style="border: solid;border-width:0.1cap; margin: 0.4cap; padding: 0.5cap; width: auto;">
+                <h5 class="card-title">${permission.permission}</h5>
+                
+                <progress id="progress_${i}" value="${permission.days_left}" max="100" style="left: 10px; margin-right: 20px;"></progress>
+                <small id="text_${i}" class="right">${permission.days_left}</small>
+                <a onclick="open_topic()" class="btn btn-outline-primary">Open</a>
+              </div>
+
+
+              `;
+              i++;
+              
+            });
+            document.getElementById("nav-tabContent").innerHTML = user_permission_HTML;
+            console.log(user_permission_HTML)
+
+            for (let j = 0; j < i; j++) {
+              setProgress(j);
+            }
+
+          })
+          .catch(error => console.log('error', error));
+
+          
+
+          
+        }
+        
+        function reset(user, permission){
+          var formdata = new FormData();
+          formdata.append("user", user);
+          formdata.append("permission", permission);
+
+          var requestOptions = {
+            method: 'PUT',
+            body: formdata,
+            redirect: 'follow'
+          };
+
+          fetch("http://127.0.0.1:8000/permissions/api/", requestOptions)
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.log('error', error));
+        }
+      </script>
+        
+        
+        
+{% endblock %}

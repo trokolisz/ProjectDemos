@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'permissions.apps.PermissionsConfig',
+    'rest_framework',
     
 ]
 
@@ -138,3 +139,5 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+STATIC_URL = '/static/'

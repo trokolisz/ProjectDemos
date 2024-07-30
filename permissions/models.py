@@ -6,14 +6,14 @@ import django.utils.timezone as timezone
 # Create your models here.
 class My_User(models.Model):
     name = models.CharField(max_length=100, null=False)
-    tsz = models.IntegerField(null=False, default=0000000, validators=[MinValueValidator(100000), MaxValueValidator(999999)], unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    tsz = models.IntegerField(null=False, default=0, validators=[MinValueValidator(100000), MaxValueValidator(999999)], unique=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self)->str:
-        return self.name
+        return f"{self.name} - {self.tsz}"
     
-    def tsz_student(self)->bool:
+    def student(self)->bool:
         if self.tsz  >= 16000 and self.tsz <17000:
             return True        
         return False
@@ -37,6 +37,9 @@ class UserPermission(models.Model):
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
     got_permission_at = models.DateField()
 
+    class Meta:
+        unique_together = ('user', 'permission')
+
     def days_since_updated(self) -> int:
         today = timezone.now()
     
@@ -54,4 +57,13 @@ class UserPermission(models.Model):
             return f"Deprecitated {self.user.name} - {self.permission.name} - {self.days_since_updated()} days ago"            
         return f"{self.user.name} - {self.permission.name} - {self.days_since_updated()} days ago"
     
+    def days_left(self) -> int:
+        return self.permission.len - self.days_since_updated()
     
+    def len(self) ->int:
+        return self.permission.len
+    
+    def reset(self) ->bool:
+        self.got_permission_at = timezone.now()
+        self.save()
+        return True
